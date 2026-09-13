@@ -1,0 +1,17 @@
+{
+  "min_reserve_sol": 0.01,
+  "daily_spend_limit_sol": 0.05,
+  "scan_markets_every_cycles": 3,
+  "scan_cve_every_cycles": 10,
+  "llm_model": "llama3.1:8b",
+  "staking_min_excess_sol": 1.0,
+  "trading_state_path": "/home/alexandre/local-trader-ai/state.json",
+  "modules": {
+    "treasury": true,
+    "markets": true,
+    "cve_recon": true,
+    "llm_triage": true,
+    "staking": true,
+    "trading_salary": true
+  }
+}

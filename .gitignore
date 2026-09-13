@@ -1,0 +1,10 @@
+sentric_key.json
+lab_proxy/key.pem
+lab_proxy/cert.pem
+*.log
+STOP*
+*.tmp
+__pycache__/
+sentric_state.json
+zero_state.json
+trader_state.json
