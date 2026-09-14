@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -179,6 +180,72 @@ def analyze_from_core(limit=10):
                         "reasons": reasons})
     return results
 
+
+
+AUTOPILOT_STATE = os.path.join(DATA_DIR, "autopilot_state.json")
+LAB_WISHLIST = os.path.join(DATA_DIR, "lab_wishlist.json")
+
+def autopilot_check():
+    bt = os.path.join(DATA_DIR, "bounty_targets.json")
+    if not os.path.exists(bt):
+        return
+    targets = json.load(open(bt, encoding="utf-8"))
+    state = {}
+    if os.path.exists(AUTOPILOT_STATE):
+        state = json.load(open(AUTOPILOT_STATE, encoding="utf-8"))
+    today = time.strftime("%Y-%m-%d")
+    if state.get("day") != today:
+        state["day"] = today
+        state["daily_count"] = 0
+    state.setdefault("done", [])
+    wish = []
+    if os.path.exists(LAB_WISHLIST):
+        wish = json.load(open(LAB_WISHLIST, encoding="utf-8"))
+    for t in targets:
+        if t["id"] in state["done"]:
+            continue
+        if state.get("daily_count", 0) >= 1:
+            log.info("autopilot: limite diario de labs atingido")
+            break
+        hay = (t.get("product") or "").lower()
+        stack = None
+        if "misp" in hay:
+            stack = "misp"
+        if stack:
+            state["done"].append(t["id"])
+            state["daily_count"] = state.get("daily_count", 0) + 1
+            log.info(">>> AUTOPILOT: bounty %s caiu no funil -> disparando lab (stack %s)", t["id"], stack)
+            logfile = open(os.path.join(DATA_DIR, "lab_autopilot.log"), "ab")
+            env = dict(os.environ)
+            env["LAB_SUDO"] = "1"
+            subprocess.Popen(
+                ["python3", os.path.join(DATA_DIR, "sentric_lab.py"),
+                 "--target", t["id"]],
+                env=env, stdout=logfile, stderr=subprocess.STDOUT)
+        else:
+            log.info("autopilot: %s sem stack de lab conhecida -> wishlist", t["id"])
+            if t["id"] not in [w.get("id") for w in wish]:
+                wish.append({"id": t["id"], "product": t.get("product"),
+                             "score": t.get("score")})
+    with open(AUTOPILOT_STATE + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2)
+    os.replace(AUTOPILOT_STATE + ".tmp", AUTOPILOT_STATE)
+    with open(LAB_WISHLIST + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(wish, f, indent=2)
+    os.replace(LAB_WISHLIST + ".tmp", LAB_WISHLIST)
+
+def run_loop(interval=1800):
+    log.info("SENTRIC INTEL em modo continuo (a cada %d min)", interval // 60)
+    while True:
+        if os.path.exists(os.path.join(DATA_DIR, "STOP_INTEL")):
+            log.warning("STOP_INTEL detectado - encerrando")
+            break
+        load_kev()
+        bounty_scan()
+        defense_scan()
+        autopilot_check()
+        time.sleep(interval)
+
 def main():
     log.info("=" * 56)
     log.info("SENTRIC INTEL v0.8 - multi-fonte (KEV/EPSS/nomi-sec/vendor)")
@@ -197,7 +264,15 @@ def main():
         log.info("canal %-16s %s", k, v)
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--loop", action="store_true")
+    ap.add_argument("--interval", type=int, default=1800)
+    args = ap.parse_args()
+    if args.loop:
+        run_loop(args.interval)
+    else:
+        main()
 
 
 NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
