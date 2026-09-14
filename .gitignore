@@ -8,3 +8,4 @@ __pycache__/
 sentric_state.json
 zero_state.json
 trader_state.json
+node_modules/
