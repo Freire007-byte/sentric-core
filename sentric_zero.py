@@ -30,7 +30,7 @@ GITHUB_SEARCH = "https://api.github.com/search/repositories"
 
 # vendors tutorial/projeto academico: CVE existe mas ninguem paga bounty
 JUNK_VENDORS = ("code-projects", "mstfakts", "mstafaks", "hotel and tourism",
-                "college-management")
+                "college-management", "sourcecodester")
 
 # produtos que conseguimos reproduzir em laboratorio local (fase v0.6)
 LAB_REGISTRY = {
