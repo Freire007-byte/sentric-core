@@ -31,6 +31,8 @@ On its first public day (Sep 13, 2026), the Sentric pipeline:
   - Attack blocked on patched **2.5.46** (negative control)
   - Report delivered to the vendor (CIRCL) via coordinated disclosure
 - Runs a **live trading engine** (Jupiter DEX, SOL/USDC) to pay its own gas
+- Source-validated **CVE-2026-78325** (Standard Notes importers XSS) with
+  public PoC artifacts — **2nd CVE in the portfolio** in 48h of life
 
 The agent has a Solana wallet (`ENYsKpqLnk...`), a survival score
 (MORRENDO/VIVAL), spending limits, and a kill switch. It is designed to
