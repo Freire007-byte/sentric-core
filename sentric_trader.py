@@ -225,12 +225,21 @@ def run(dry, interval):
         if os.path.exists(STOP_FILE):
             log.warning("STOP_TRADER detectado - encerrando")
             break
-        try:
-            closes = fetch_sol_closes()
-        except Exception as e:
-            log.warning("dados de preco falharam: %s", e)
+        import threading
+        result = {}
+        def _worker():
+            try:
+                result["closes"] = fetch_sol_closes()
+            except Exception as e:
+                result["error"] = e
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+        t.join(30)
+        if "closes" not in result:
+            log.warning("dados de preco falharam/timeout - tento na proxima hora")
             time.sleep(interval)
             continue
+        closes = result["closes"]
         side, rsi, price = decide(closes, state)
         if side != "HOLD" and can_trade(state):
             execute(side, kp, addr, state, price, dry)
