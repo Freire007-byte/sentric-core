@@ -171,6 +171,20 @@ def process(core_state, zstate):
         detail = enrich_cve(cid)
         poc_count = check_public_poc(cid)
         score, level, reasons = score_opportunity(t, detail, poc_count)
+        try:
+            import sentric_intel as intel
+            cache = intel.load_cache()
+            iscore, ireasons, _e, _f = intel.intel_score(
+                cid,
+                (detail or {}).get("product"),
+                (t.get("reason") or "")[:300],
+                t.get("severity", ""), cache)
+            intel.save_cache(cache)
+            score = iscore
+            level = "ALTA" if score >= 60 else ("MEDIA" if score >= 30 else "BAIXA")
+            reasons = reasons + ["intel: " + r for r in ireasons]
+        except Exception as e:
+            log.warning("intel falhou: %s", e)
         entry = {
             "id": cid,
             "severity": t.get("severity"),
