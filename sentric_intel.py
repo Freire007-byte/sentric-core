@@ -78,13 +78,29 @@ def save_cache(cache):
     os.replace(tmp, CACHE_FILE)
 
 # vendors com bug bounty program (curado; expandir depois via disclose.io)
+BOUNTY_TOP = ("apple", "google", "samsung", "microsoft", "meta",
+              "nvidia", "tesla", "amazon", "intel", "cisco", "oracle",
+              "adobe", "paypal", "shopify", "uber", "airbnb", "netflix",
+              "ethereum", "solana", "uniswap", "aave", "lido", "polygon",
+              "arbitrum", "optimism", "chainlink", "starknet", "near",
+              "cosmos", "avalanche", "makerdao", "curve", "compound",
+              "binance", "coinbase", "kraken", "okx", "ledger", "trezor",
+              "metamask", "phantom", "walletconnect", "openai", "anthropic")
+
 BOUNTY_VENDORS = ("google", "microsoft", "cloudflare", "github", "gitlab",
                   "proton", "standardnotes", "standard notes", "mozilla",
-                  "oracle", "adobe", "apple", "facebook", "meta", "twitter",
-                  "x corp", "shopify", "paypal", "coinbase", "binance",
+                  "oracle", "adobe", "apple", "meta", "shopify", "paypal",
                   "hashicorp", "vmware", "citrix", "fortinet", "palo alto",
                   "atlassian", "slack", "zoom", "dropbox", "spotify",
-                  "curl", "openssl", "apache", "nginx", "mozilla")
+                  "curl", "openssl", "apache", "nginx", "jetbrains",
+                  "samsung", "nvidia", "intel", "dell", "lenovo", "asus",
+                  "netgear", "ubiquiti", "mikrotik", "sophos", "f5",
+                  "salesforce", "zendesk", "stripe", "airbnb", "uber",
+                  "lyft", "doordash", "spotify", "netflix", "tiktok",
+                  "snap", "pinterest", "reddit", "discord", "telegram",
+                  "signal", "mongodb", "redis", "confluent", "datadog",
+                  "elastic", "splunk", "rapid7", "tenable", "qualys",
+                  "wordfence", "automattic", "squarespace", "wix")
 
 REAL_VENDORS = ("misp", "wordpress", "drupal", "joomla", "laravel", "symfony",
                 "django", "rails", "nodejs", "node.js", "react", "angular",
@@ -102,6 +118,8 @@ def vendor_score(product, desc):
     hay = ((product or "") + " " + (desc or "")).lower()
     if any(j in hay for j in JUNK):
         return -50, "vendor lixo/tutorial"
+    if any(b in hay for b in BOUNTY_TOP):
+        return 30, "MEGA-PAGADOR (ate milhoes $)"
     if any(b in hay for b in BOUNTY_VENDORS):
         return 20, "tem bug bounty program"
     if any(r in hay for r in REAL_VENDORS):
@@ -167,6 +185,145 @@ def main():
     log.info("=" * 56)
     load_kev()
     analyze_from_core()
+    log.info("=" * 56)
+    log.info("CAÇA BOUNTY: fresca + sem patch + vendor paga + sem PoC")
+    log.info("=" * 56)
+    bounty_scan()
+    log.info("=" * 56)
+    log.info("VARREDURA DEFESA/GOV")
+    log.info("=" * 56)
+    defense_scan()
+    for k, v in REPORT_CHANNELS.items():
+        log.info("canal %-16s %s", k, v)
 
 if __name__ == "__main__":
     main()
+
+
+NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+
+def fetch_cve_detail(cve):
+    code, raw = http_get(NVD_URL + "?cveId=" + cve, timeout=20)
+    if code != 200:
+        return None
+    try:
+        c = json.loads(raw)["vulnerabilities"][0]["cve"]
+        refs = c.get("references", [])
+        desc = ""
+        for d in c.get("descriptions", []):
+            if d.get("lang") == "en":
+                desc = d.get("value", "")
+                break
+        return {"published": c.get("published", ""), "refs": refs, "desc": desc}
+    except Exception:
+        return None
+
+def patch_evidence(detail):
+    if not detail:
+        return False
+    desc = detail.get("desc", "").lower()
+    if "fixed in" in desc or "has been fixed" in desc or "resolved in" in desc:
+        return True
+    for r in detail.get("refs", []):
+        url = r.get("url", "").lower()
+        tags = " ".join(r.get("tags", [])).lower()
+        if "patch" in tags:
+            return True
+        if "commit" in url and ("fix" in url or "security" in url):
+            return True
+        if "github.com" in url and "/security/advisories" in url:
+            return True
+    return False
+
+def bounty_scan(limit=40):
+    sys.path.insert(0, DATA_DIR)
+    import sentric_core as core
+    state = core.load_state()
+    cache = load_cache()
+    targets = []
+    for t in state.get("cve_triage", [])[-limit:]:
+        cve = t["id"]
+        vs, vreason = vendor_score(t.get("product"), t.get("reason", ""))
+        if vs < 20:
+            continue
+        detail = cache.get(cve, {}).get("detail")
+        if detail is None:
+            d = fetch_cve_detail(cve)
+            detail = d or {}
+            cache.setdefault(cve, {})["detail"] = detail
+            time.sleep(1)
+        published = detail.get("published", "")
+        age_days = 9999
+        if published:
+            try:
+                pub = time.strptime(published[:19], "%Y-%m-%dT%H:%M:%S")
+                age_days = (time.time() - time.mktime(pub)) / 86400
+            except Exception:
+                pass
+        patched = patch_evidence(detail) if detail else False
+        fresh = cache.get(cve, {}).get("fresh")
+        if fresh is None:
+            fresh = not poc_public_exists(cve)
+            cache.setdefault(cve, {})["fresh"] = fresh
+            time.sleep(1)
+        save_cache(cache)
+        if age_days < 45 and not patched and fresh:
+            score = 30 + (15 if age_days < 7 else 0) + (10 if t.get("severity") in ("HIGH", "CRITICAL") else 0)
+            targets.append({"id": cve, "score": score, "age_days": int(age_days),
+                            "severity": t.get("severity"),
+                            "note": "BOUNTY: fresca (%dd), sem patch evidente, sem PoC, vendor paga" % int(age_days)})
+            log.info(">>> ALVO BOUNTY: %s | %dd | %s | %s pts", cve, age_days,
+                     t.get("severity"), score)
+    targets.sort(key=lambda x: -x["score"])
+    out = os.path.join(DATA_DIR, "bounty_targets.json")
+    with open(out + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(targets, f, indent=2)
+    os.replace(out + ".tmp", out)
+    log.info("bounty_targets.json: %d alvos de alto retorno", len(targets))
+    return targets
+
+
+# alvos defesa/gov: contractors, software de seguranca usado por governos
+GOV_DEFENSE = ("palantir", "anduril", "lockheed", "bae systems", "northrop",
+               "raytheon", "rtx", "thales", "airbus", "leonardo", "indra",
+               "saab", "rheinmetall", "general dynamics", "l3harris",
+               "boeing defense", "dassault", "israel aerospace", "rafael",
+               "elbit", "havelsan", "aselsan", "roksanda",
+               "misp", "opencti", "thehive", "cortex", "velociraptor",
+               "osquery", "wazuh", "zeek", "suricata", "snort", "arkime",
+               "timesketch", "plaso", "volatility", "ghidra", "yara",
+               "sigma", "ossec", "falco", "elastic security", "splunk",
+               "qradar", "mcafee", "trellix", "sentinelone", "crowdstrike",
+               "huntress", "cynet", "perimeter81", "tailscale", "zerotier")
+
+# canais oficiais de reporte (divulgacao coordenada)
+REPORT_CHANNELS = {
+    "cncs_portugal": "CERT nacional de Portugal — vuln.ciber.gov.pt",
+    "cert_eu": "CERT-EU (instituicoes UE) — cert.europa.eu",
+    "dod_vdp": "US DoD Vulnerability Disclosure — vulnerability.mil (PAGA bounty)",
+    "hackthepentagon": "Hack the Pentagon (HackerOne) — programa pago",
+    "first_cert": "Lista mundial de CERTs — first.org/members/teams",
+    "intigriti": "intigriti.com — programs publicos incl. gov-adjacentes",
+}
+
+def defense_scan(limit=40):
+    sys.path.insert(0, DATA_DIR)
+    import sentric_core as core
+    state = core.load_state()
+    hits = []
+    for t in state.get("cve_triage", [])[-limit:]:
+        hay = ((t.get("product") or "") + " " + (t.get("reason") or "")).lower()
+        for g in GOV_DEFENSE:
+            if g in hay:
+                hits.append({"id": t["id"], "severity": t.get("severity"),
+                             "match": g})
+                log.info(">>> ALVO DEFESA/GOV: %s | %s | match: %s",
+                         t["id"], t.get("severity"), g)
+                break
+    out = os.path.join(DATA_DIR, "gov_defense_targets.json")
+    with open(out + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(hits, f, indent=2)
+    os.replace(out + ".tmp", out)
+    if not hits:
+        log.info("defesa/gov: nenhum alvo no radar atual")
+    return hits
