@@ -6,6 +6,20 @@ and funds itself by trading crypto — 24/7, with no human in the loop.
 
 Built by one person on a home PC. Portugal, 2026.
 
+## The problem it solves
+
+The world tracks **372,000+ published CVEs** (cve.org, 2026), growing 263%
+in five years — with **70,000 new vulnerabilities forecast for 2026 alone**.
+In April 2026, NIST officially abandoned universal CVE enrichment: ~80% of
+new CVEs now enter the NVD unanalyzed ("Not Scheduled"), invisible to the
+scanners that depend on enrichment data.
+
+Sentric is the countermeasure: an autonomous organism that reads the same
+firehose with a local LLM, scores every candidate for exploitability and
+bounty value, and proves the real ones in isolated labs — at machine speed,
+24/7, funded by its own trading.
+
+
 ## Why it matters
 
 On its first public day (Sep 13, 2026), the Sentric pipeline:
