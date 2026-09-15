@@ -242,6 +242,7 @@ def run_loop(interval=1800):
             break
         load_kev()
         bounty_scan()
+        kev_bounty_hunt()
         defense_scan()
         autopilot_check()
         time.sleep(interval)
@@ -263,16 +264,6 @@ def main():
     for k, v in REPORT_CHANNELS.items():
         log.info("canal %-16s %s", k, v)
 
-if __name__ == "__main__":
-    import argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--loop", action="store_true")
-    ap.add_argument("--interval", type=int, default=1800)
-    args = ap.parse_args()
-    if args.loop:
-        run_loop(args.interval)
-    else:
-        main()
 
 
 NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
@@ -309,6 +300,57 @@ def patch_evidence(detail):
         if "github.com" in url and "/security/advisories" in url:
             return True
     return False
+
+def kev_bounty_hunt(max_age=60):
+    code, raw = http_get(KEV_URL, timeout=30)
+    if code != 200:
+        return
+    try:
+        vulns = json.loads(raw).get("vulnerabilities", [])
+    except Exception:
+        return
+    cache = load_cache()
+    bt = os.path.join(DATA_DIR, "bounty_targets.json")
+    targets = []
+    if os.path.exists(bt):
+        targets = json.load(open(bt, encoding="utf-8"))
+    have = set(t.get("id") for t in targets)
+    novos = 0
+    for v in vulns:
+        cve = v.get("cveID", "")
+        vendor = v.get("vendorProject", "") or ""
+        product = v.get("product", "") or ""
+        added = v.get("dateAdded", "")
+        try:
+            age = (time.time() - time.mktime(time.strptime(added, "%Y-%m-%d"))) / 86400
+        except Exception:
+            age = 9999
+        if age > max_age or cve in have:
+            continue
+        vs, vreason = vendor_score(product, vendor + " " + product)
+        if vs < 20:
+            continue
+        fresh = cache.get(cve, {}).get("fresh")
+        if fresh is None:
+            fresh = not poc_public_exists(cve)
+            cache.setdefault(cve, {})["fresh"] = fresh
+            time.sleep(0.5)
+        save_cache(cache)
+        score = vs + 25 + (10 if fresh else 0)
+        note = "CISA KEV (%dd) + %s%s" % (int(age), vreason,
+              "; SEM PoC publico" if fresh else "; PoC existe (credito/reproducao)")
+        targets.append({"id": cve, "score": score, "age_days": int(age),
+                        "severity": "KEV", "product": product, "note": note})
+        have.add(cve)
+        novos += 1
+        log.info(">>> ALVO BOUNTY-KEV: %s | %s | %d pts | %s", cve, product, score, note)
+    if novos:
+        targets.sort(key=lambda x: -x.get("score", 0))
+        with open(bt + ".tmp", "w", encoding="utf-8") as f:
+            json.dump(targets, f, indent=2)
+        os.replace(bt + ".tmp", bt)
+    log.info("kev_bounty_hunt: %d novos alvos (total %d)", novos, len(targets))
+
 
 def bounty_scan(limit=40):
     sys.path.insert(0, DATA_DIR)
@@ -402,3 +444,15 @@ def defense_scan(limit=40):
     if not hits:
         log.info("defesa/gov: nenhum alvo no radar atual")
     return hits
+
+
+if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--loop", action="store_true")
+    ap.add_argument("--interval", type=int, default=1800)
+    args = ap.parse_args()
+    if args.loop:
+        run_loop(args.interval)
+    else:
+        main()

@@ -1,0 +1,218 @@
+[
+  {
+    "id": "CVE-2026-81963",
+    "score": 65,
+    "age_days": 7,
+    "severity": "KEV",
+    "product": "Windows",
+    "note": "CISA KEV (7d) + MEGA-PAGADOR (ate milhoes $); SEM PoC publico"
+  },
+  {
+    "id": "CVE-2026-85880",
+    "score": 65,
+    "age_days": 7,
+    "severity": "KEV",
+    "product": "Windows",
+    "note": "CISA KEV (7d) + MEGA-PAGADOR (ate milhoes $); SEM PoC publico"
+  },
+  {
+    "id": "CVE-2026-20349",
+    "score": 65,
+    "age_days": 35,
+    "severity": "KEV",
+    "product": "Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) ",
+    "note": "CISA KEV (35d) + MEGA-PAGADOR (ate milhoes $); SEM PoC publico"
+  },
+  {
+    "id": "CVE-2026-20316",
+    "score": 65,
+    "age_days": 48,
+    "severity": "KEV",
+    "product": "Secure Firewall Management Center (FMC)",
+    "note": "CISA KEV (48d) + MEGA-PAGADOR (ate milhoes $); SEM PoC publico"
+  },
+  {
+    "id": "CVE-2026-76461",
+    "score": 55,
+    "age_days": 1,
+    "severity": "KEV",
+    "product": "Secure Email Gateway",
+    "note": "CISA KEV (1d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-67277",
+    "score": 55,
+    "age_days": 5,
+    "severity": "KEV",
+    "product": "RouterOS",
+    "note": "CISA KEV (5d) + tem bug bounty program; SEM PoC publico"
+  },
+  {
+    "id": "CVE-2025-25249",
+    "score": 55,
+    "age_days": 6,
+    "severity": "KEV",
+    "product": "Multiple Products",
+    "note": "CISA KEV (6d) + tem bug bounty program; SEM PoC publico"
+  },
+  {
+    "id": "CVE-2026-87491",
+    "score": 55,
+    "age_days": 6,
+    "severity": "KEV",
+    "product": "Chromium V8",
+    "note": "CISA KEV (6d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-20079",
+    "score": 55,
+    "age_days": 6,
+    "severity": "KEV",
+    "product": "Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management",
+    "note": "CISA KEV (6d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-75650",
+    "score": 55,
+    "age_days": 7,
+    "severity": "KEV",
+    "product": "Commerce and Magento",
+    "note": "CISA KEV (7d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-85046",
+    "score": 55,
+    "age_days": 11,
+    "severity": "KEV",
+    "product": "Chromium V8",
+    "note": "CISA KEV (11d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2019-1068",
+    "score": 55,
+    "age_days": 20,
+    "severity": "KEV",
+    "product": "SQL Server",
+    "note": "CISA KEV (20d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-21962",
+    "score": 55,
+    "age_days": 22,
+    "severity": "KEV",
+    "product": "HTTP Server and Oracle Weblogic Server Proxy Plug-in",
+    "note": "CISA KEV (22d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-33824",
+    "score": 55,
+    "age_days": 28,
+    "severity": "KEV",
+    "product": "Internet Key Exchange (IKE) Service Extensions",
+    "note": "CISA KEV (28d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-55040",
+    "score": 55,
+    "age_days": 28,
+    "severity": "KEV",
+    "product": "SharePoint",
+    "note": "CISA KEV (28d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-65400",
+    "score": 55,
+    "age_days": 28,
+    "severity": "KEV",
+    "product": "macOS",
+    "note": "CISA KEV (28d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-68820",
+    "score": 55,
+    "age_days": 35,
+    "severity": "KEV",
+    "product": "Windows Ancillary Function Driver for WinSock ",
+    "note": "CISA KEV (35d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-72898",
+    "score": 55,
+    "age_days": 35,
+    "severity": "KEV",
+    "product": "Metabase",
+    "note": "CISA KEV (35d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2025-68686",
+    "score": 55,
+    "age_days": 50,
+    "severity": "KEV",
+    "product": "FortiOS",
+    "note": "CISA KEV (50d) + tem bug bounty program; SEM PoC publico"
+  },
+  {
+    "id": "CVE-2026-50522",
+    "score": 55,
+    "age_days": 55,
+    "severity": "KEV",
+    "product": "SharePoint",
+    "note": "CISA KEV (55d) + MEGA-PAGADOR (ate milhoes $); PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-85706",
+    "score": 45,
+    "age_days": 4,
+    "severity": "KEV",
+    "product": "Community Edition and Enterprise Edition",
+    "note": "CISA KEV (4d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-86060",
+    "score": 45,
+    "age_days": 5,
+    "severity": "KEV",
+    "product": "RouterOS",
+    "note": "CISA KEV (5d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-19490",
+    "score": 45,
+    "age_days": 6,
+    "severity": "KEV",
+    "product": "NetScaler",
+    "note": "CISA KEV (6d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-8452",
+    "score": 45,
+    "age_days": 20,
+    "severity": "KEV",
+    "product": "NetScaler ADC and NetScaler Gateway",
+    "note": "CISA KEV (20d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-59310",
+    "score": 45,
+    "age_days": 28,
+    "severity": "KEV",
+    "product": "VMware vCenter",
+    "note": "CISA KEV (28d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-63077",
+    "score": 45,
+    "age_days": 41,
+    "severity": "KEV",
+    "product": "TeamCity",
+    "note": "CISA KEV (41d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  },
+  {
+    "id": "CVE-2026-34486",
+    "score": 45,
+    "age_days": 42,
+    "severity": "KEV",
+    "product": "Tomcat",
+    "note": "CISA KEV (42d) + tem bug bounty program; PoC existe (credito/reproducao)"
+  }
+]
